@@ -1,0 +1,451 @@
+// prisma/schema.prisma
+// ATTENDLY - Smart Attendance System Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============ ENUMS ============
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  TEACHER
+  HOMEROOM_TEACHER
+  PRINCIPAL
+  STUDENT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum TeacherStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  GRADUATED
+  TRANSFERRED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  SICK
+  PERMITTED
+  ABSENT
+}
+
+enum LeaveType {
+  SICK
+  FAMILY
+  OTHER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ============ MODELS ============
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  avatar        String?
+  role          UserRole  @default(STUDENT)
+  isActive      Boolean   @default(true)
+  emailVerified DateTime?
+  lastLogin     DateTime?
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  teacher                  Teacher?
+  student                  Student?
+  auditLogs                AuditLog[]
+  recordedAttendances      StudentAttendance[]      @relation("RecordedBy")
+  approvedLeaves           LeaveRequest[]           @relation("ApprovedBy")
+  approvedTeacherLeaves    TeacherLeaveRequest[]    @relation("ApprovedBy")
+  notifications            Notification[]
+  notificationPreferences  NotificationPreferences?
+  gamification             GamificationProfile?
+  
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+  type       String   @default("EMAIL_RESET") // EMAIL_RESET, PASSWORD_RESET, DELEGATED_RESET
+  
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Teacher {
+  id        String        @id @default(cuid())
+  userId    String        @unique
+  nip       String        @unique
+  phone     String?
+  address   String?
+  status    TeacherStatus @default(ACTIVE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relations
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schedules       Schedule[]
+  homeroomClasses Class[]                @relation("HomeroomTeacher")
+  attendances     TeacherAttendance[]
+  leaveRequests   TeacherLeaveRequest[]
+
+  @@map("teachers")
+}
+
+model Student {
+  id          String        @id @default(cuid())
+  userId      String        @unique
+  nis         String        @unique
+  nisn        String?       @unique
+  classId     String?
+  parentPhone String?
+  gender      Gender
+  birthDate   DateTime?
+  status      StudentStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class         Class?              @relation(fields: [classId], references: [id])
+  attendances   StudentAttendance[]
+  leaveRequests LeaveRequest[]
+
+  @@map("students")
+}
+
+model Class {
+  id                String   @id @default(cuid())
+  name              String
+  grade             String
+  homeroomTeacherId String?
+  academicYearId    String
+  capacity          Int      @default(40)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  homeroomTeacher Teacher?     @relation("HomeroomTeacher", fields: [homeroomTeacherId], references: [id])
+  academicYear    AcademicYear @relation(fields: [academicYearId], references: [id])
+  students        Student[]
+  schedules       Schedule[]
+
+  @@unique([name, academicYearId])
+  @@map("classes")
+}
+
+model AcademicYear {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  classes Class[]
+
+  @@map("academic_years")
+}
+
+model Subject {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  schedules Schedule[]
+
+  @@map("subjects")
+}
+
+model Schedule {
+  id        String    @id @default(cuid())
+  classId   String
+  subjectId String
+  teacherId String
+  dayOfWeek DayOfWeek
+  startTime DateTime  @db.Time
+  endTime   DateTime  @db.Time
+  room      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  class       Class               @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subject     Subject             @relation(fields: [subjectId], references: [id])
+  teacher     Teacher             @relation(fields: [teacherId], references: [id])
+  attendances StudentAttendance[]
+
+  @@unique([classId, dayOfWeek, startTime])
+  @@map("schedules")
+}
+
+model TeacherAttendance {
+  id        String           @id @default(cuid())
+  teacherId String
+  date      DateTime         @db.Date
+  checkIn   DateTime?
+  checkOut  DateTime?
+  status    AttendanceStatus @default(ABSENT)
+  notes     String?
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // Relations
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, date])
+  @@map("teacher_attendances")
+}
+
+model StudentAttendance {
+  id           String           @id @default(cuid())
+  studentId    String
+  scheduleId   String
+  date         DateTime         @db.Date
+  status       AttendanceStatus @default(ABSENT)
+  recordedById String?
+  notes        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  // Relations
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  schedule   Schedule @relation(fields: [scheduleId], references: [id])
+  recordedBy User?    @relation("RecordedBy", fields: [recordedById], references: [id])
+
+  @@unique([studentId, scheduleId, date])
+  @@map("student_attendances")
+}
+
+model LeaveRequest {
+  id           String      @id @default(cuid())
+  studentId    String
+  startDate    DateTime    @db.Date
+  endDate      DateTime    @db.Date
+  type         LeaveType
+  reason       String
+  attachment   String?
+  status       LeaveStatus @default(PENDING)
+  approvedById String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relations
+  student    Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  approvedBy User?   @relation("ApprovedBy", fields: [approvedById], references: [id])
+
+  @@map("leave_requests")
+}
+
+model TeacherLeaveRequest {
+  id           String      @id @default(cuid())
+  teacherId    String
+  startDate    DateTime    @db.Date
+  endDate      DateTime    @db.Date
+  type         LeaveType
+  reason       String
+  attachment   String?
+  status       LeaveStatus @default(PENDING)
+  approvedById String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relations
+  teacher    Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  approvedBy User?   @relation("ApprovedBy", fields: [approvedById], references: [id])
+
+  @@map("teacher_leave_requests")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  module    String
+  recordId  String?
+  oldData   Json?
+  newData   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([module])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model SchoolSettings {
+  id                     String   @id @default(cuid())
+  schoolName             String
+  schoolLogo             String?
+  address                String?
+  phone                  String?
+  email                  String?
+  attendanceStartTime    DateTime @db.Time
+  attendanceEndTime      DateTime @db.Time
+  gracePeriodMinutes     Int      @default(15)
+  lateThresholdMinutes   Int      @default(30)
+  enableLocationTracking Boolean  @default(false)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@map("school_settings")
+}
+
+model LandingPageSettings {
+  id               String   @id @default(cuid())
+  heroTitle        String   @default("Selamat Datang di ATTENDLY")
+  heroSubtitle     String   @default("Smart Attendance System untuk Sekolah Modern")
+  heroImage        String?
+  aboutTitle       String   @default("Tentang ATTENDLY")
+  aboutDescription String   @default("Sistem absensi terintegrasi untuk memudahkan pengelolaan kehadiran siswa dan guru.")
+  feature1Title    String   @default("Absensi Digital")
+  feature1Desc     String   @default("Rekam kehadiran secara digital dengan mudah dan akurat")
+  feature1Icon     String   @default("ClipboardCheck")
+  feature2Title    String   @default("Laporan Real-time")
+  feature2Desc     String   @default("Pantau statistik kehadiran secara real-time")
+  feature2Icon     String   @default("FileText")
+  feature3Title    String   @default("Multi-Role")
+  feature3Desc     String   @default("Akses berbeda untuk Admin, Guru, dan Siswa")
+  feature3Icon     String   @default("Users")
+  contactEmail     String?
+  contactPhone     String?
+  contactAddress   String?
+  footerText       String   @default("© 2026 ATTENDLY. All rights reserved.")
+  primaryColor     String   @default("#2563eb")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("landing_page_settings")
+}
+
+
+
+// ============ NOTIFICATIONS ============
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model NotificationPreferences {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailNotifications    Boolean  @default(true)
+  pushNotifications     Boolean  @default(true)
+  inAppNotifications    Boolean  @default(true)
+  attendanceReminders   Boolean  @default(true)
+  leaveApprovals        Boolean  @default(true)
+  systemUpdates         Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("notification_preferences")
+}
+
+// ============ GAMIFICATION ============
+
+model GamificationProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  xp             Int      @default(0)
+  level          Int      @default(1)
+  points         Int      @default(0) 
+  streakDays     Int      @default(0)
+  lastActivity   DateTime @default(now())
+  
+  badges         UserBadge[]
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("gamification_profiles")
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  code        String   @unique 
+  name        String
+  description String
+  icon        String   
+  xpValue     Int      @default(100)
+  createdAt   DateTime @default(now())
+
+  users       UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   GamificationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  
+  obtainedAt DateTime @default(now())
+
+  @@unique([profileId, badgeId])
+  @@map("user_badges")
+}
