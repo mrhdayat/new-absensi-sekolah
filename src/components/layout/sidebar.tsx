@@ -78,6 +78,12 @@ const menuItems: MenuItem[] = [
     roles: ["SUPER_ADMIN", "ADMIN"],
   },
   {
+    title: "Tahun Ajaran",
+    href: "/admin/academic-years",
+    icon: Calendar,
+    roles: ["SUPER_ADMIN", "ADMIN"],
+  },
+  {
     title: "Jadwal",
     href: "/admin/schedules",
     icon: Calendar,

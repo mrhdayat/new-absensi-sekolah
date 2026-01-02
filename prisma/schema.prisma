@@ -366,6 +366,74 @@ model LandingPageSettings {
   @@map("landing_page_settings")
 }
 
+model LandingFeature {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String   // Lucide icon name
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("landing_features")
+}
+
+model LandingRole {
+  id          String   @id @default(cuid())
+  roleCode    String   // e.g., STUDENT, TEACHER
+  title       String
+  description String
+  icon        String
+  benefits    String[] // Array of benefits
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("landing_roles")
+}
+
+model LandingAnnouncement {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  type        String   @default("INFO") // INFO, WARNING, ALERT
+  startDate   DateTime @default(now())
+  endDate     DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("landing_announcements")
+}
+
+model LandingFAQ {
+  id          String   @id @default(cuid())
+  question    String
+  answer      String   @db.Text
+  category    String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("landing_faqs")
+}
+
+model LandingHowItWorks {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String
+  stepNumber  Int
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("landing_how_it_works")
+}
+
 
 
 // ============ NOTIFICATIONS ============

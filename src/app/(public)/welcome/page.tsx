@@ -1,333 +1,192 @@
 import Link from "next/link";
 import { AttendanceCheckForm } from "@/components/public/AttendanceCheckForm";
-import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@/generated/prisma";
 import {
-  ClipboardCheck,
-  FileText,
-  Users,
-  CheckCircle,
-  ArrowRight,
   Phone,
   Mail,
   MapPin,
-  GraduationCap,
-  Shield,
-  Zap,
-} from "lucide-react";
-
-// Icon mapping
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  ClipboardCheck,
-  FileText,
+  Twitter,
+  Instagram,
+  Facebook,
+  ShieldCheck,
   Users,
-  CheckCircle,
-  GraduationCap,
-  Shield,
-  Zap,
-};
-
-// Default settings for fallback
-const defaultSettings = {
-  heroTitle: "Selamat Datang di ATTENDLY",
-  heroSubtitle: "Smart Attendance System untuk Sekolah Modern",
-  heroImage: null,
-  aboutTitle: "Tentang ATTENDLY",
-  aboutDescription: "Sistem absensi terintegrasi untuk memudahkan pengelolaan kehadiran siswa dan guru.",
-  feature1Title: "Absensi Digital",
-  feature1Desc: "Rekam kehadiran secara digital dengan mudah dan akurat",
-  feature1Icon: "ClipboardCheck",
-  feature2Title: "Laporan Real-time",
-  feature2Desc: "Pantau statistik kehadiran secara real-time",
-  feature2Icon: "FileText",
-  feature3Title: "Multi-Role",
-  feature3Desc: "Akses berbeda untuk Admin, Guru, dan Siswa",
-  feature3Icon: "Users",
-  contactEmail: "info@attendly.id",
-  contactPhone: "0511-1234567",
-  contactAddress: "Jl. Pendidikan No. 1",
-  footerText: "© 2026 ATTENDLY. All rights reserved.",
-  primaryColor: "#2563eb",
-};
-
-async function getLandingSettings() {
-  try {
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) {
-      console.warn("DATABASE_URL not set, using defaults");
-      return defaultSettings;
-    }
-
-    const pool = new Pool({ connectionString });
-    const adapter = new PrismaPg(pool);
-    const prisma = new PrismaClient({ adapter });
-
-    let settings = await prisma.landingPageSettings.findFirst();
-
-    if (!settings) {
-      settings = await prisma.landingPageSettings.create({
-        data: {},
-      });
-    }
-
-    await prisma.$disconnect();
-    await pool.end();
-
-    return settings;
-  } catch (error) {
-    console.error("Error fetching landing settings:", error);
-    return defaultSettings;
-  }
-}
+  Award
+} from "lucide-react";
+import { Landing3DWrapper } from "@/components/landing/Landing3DWrapper";
+import { getLandingData } from "@/lib/landing-cms";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { FeatureGrid } from "@/components/landing/FeatureGrid";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { RoleCards } from "@/components/landing/RoleCards";
+import { Announcements } from "@/components/landing/Announcements";
+import { FAQSection } from "@/components/landing/FAQSection";
+import { CallToAction } from "@/components/landing/CallToAction";
 
 export default async function LandingPage() {
-  const settings = await getLandingSettings();
-
-  const features = [
-    {
-      title: settings.feature1Title,
-      description: settings.feature1Desc,
-      icon: iconMap[settings.feature1Icon] || ClipboardCheck,
-    },
-    {
-      title: settings.feature2Title,
-      description: settings.feature2Desc,
-      icon: iconMap[settings.feature2Icon] || FileText,
-    },
-    {
-      title: settings.feature3Title,
-      description: settings.feature3Desc,
-      icon: iconMap[settings.feature3Icon] || Users,
-    },
-  ];
+  const { settings, features, roles, announcements, faqs, howItWorks } = await getLandingData();
 
   return (
-    <div className="min-h-screen bg-background" suppressHydrationWarning>
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-blue-500/30">
+      {/* 3D Background (Fixed) */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <Landing3DWrapper />
+      </div>
+
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" suppressHydrationWarning>
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
-              <span className="font-bold text-primary-foreground">A</span>
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 transition-all duration-300">
+        <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-blue-600 to-violet-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <span className="font-bold text-white text-lg">A</span>
             </div>
-            <span className="font-bold text-xl">ATTENDLY</span>
+            <span className="font-bold text-xl tracking-tight hidden sm:inline">ATTENDLY</span>
           </div>
-          <div className="hidden md:flex items-center gap-6">
-            <a href="#features" className="text-sm hover:text-primary transition-colors">
-              Fitur
-            </a>
-            <a href="#about" className="text-sm hover:text-primary transition-colors">
-              Tentang
-            </a>
-            <a href="#contact" className="text-sm hover:text-primary transition-colors">
-              Kontak
-            </a>
+          <div className="hidden md:flex items-center gap-8 font-medium">
+            <a href="#features" className="text-sm hover:text-blue-500 transition-colors">Fitur</a>
+            <a href="#how-it-works" className="text-sm hover:text-blue-500 transition-colors">Cara Kerja</a>
+            <a href="#faq" className="text-sm hover:text-blue-500 transition-colors">FAQ</a>
+            <a href="#contact" className="text-sm hover:text-blue-500 transition-colors">Kontak</a>
           </div>
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors"
-          >
-            Masuk
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 bg-foreground text-background px-5 py-2 rounded-full font-semibold hover:opacity-90 transition-all active:scale-95 text-sm"
+            >
+              Masuk
+            </Link>
+          </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 lg:py-32" suppressHydrationWarning>
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/10" />
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
-        <div className="container mx-auto px-4 relative">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <CheckCircle className="h-4 w-4" />
-              Smart Attendance System
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              {settings.heroTitle}
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8">
-              {settings.heroSubtitle}
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold hover:bg-primary/90 transition-all hover:scale-105"
-              >
-                Mulai Sekarang
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-              <a
-                href="#features"
-                className="inline-flex items-center gap-2 border border-input px-8 py-4 rounded-xl font-semibold hover:bg-accent transition-colors"
-              >
-                Pelajari Lebih Lanjut
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 1. Hero Section */}
+      <HeroSection settings={settings} />
 
-      {/* Attendance Check Section */}
-      <section id="check-attendance" className="py-12 bg-white relative z-10 -mt-20 px-4">
+      {/* 2. Attendance Check (Floating) */}
+      <section id="check-attendance" className="relative z-20 -mt-24 px-4 pb-20">
         <div className="container mx-auto max-w-4xl">
-          <div className="bg-white rounded-2xl shadow-xl border p-8 md:p-12">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold mb-2">Cek Kehadiran Siswa</h2>
-              <p className="text-muted-foreground">
-                Masukkan NIS dan Tanggal Lahir untuk melihat rekap kehadiran
+          <div className="bg-background/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/10 p-8 md:p-12 ring-1 ring-white/20">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600">
+                Pencarian Siswa Cepat
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                Cek status kehadiran tanpa perlu login
               </p>
             </div>
-
             <AttendanceCheckForm />
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-12 border-y bg-muted/30" suppressHydrationWarning>
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: "1000+", label: "Siswa Aktif" },
-              { value: "50+", label: "Guru Terdaftar" },
-              { value: "36", label: "Kelas" },
-              { value: "95%", label: "Tingkat Kehadiran" },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <p className="text-3xl md:text-4xl font-bold text-primary">{stat.value}</p>
-                <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-              </div>
-            ))}
+      {/* 2.5 About System (Concise) */}
+      <section className="py-20 relative z-10 bg-muted/30">
+        <div className="container mx-auto px-4 text-center max-w-3xl">
+          <h2 className="text-3xl font-bold mb-6">{settings.aboutTitle}</h2>
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            {settings.aboutDescription}
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50">
+              <ShieldCheck className="h-10 w-10 text-green-500 mx-auto mb-4" />
+              <h3 className="font-bold">Aman</h3>
+              <p className="text-sm text-muted-foreground">Data terenkripsi</p>
+            </div>
+            <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50">
+              <Users className="h-10 w-10 text-blue-500 mx-auto mb-4" />
+              <h3 className="font-bold">Terintegrasi</h3>
+              <p className="text-sm text-muted-foreground">Siswa, Guru, Ortu</p>
+            </div>
+            <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50">
+              <Award className="h-10 w-10 text-amber-500 mx-auto mb-4" />
+              <h3 className="font-bold">Akurat</h3>
+              <p className="text-sm text-muted-foreground">Real-time update</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 lg:py-32" suppressHydrationWarning>
+      {/* 3. Feature Highlights (Dynamic) */}
+      <FeatureGrid features={features} />
+
+      {/* 4. How It Works (Dynamic) */}
+      <section id="how-it-works">
+        <HowItWorks steps={howItWorks} />
+      </section>
+
+      {/* 5. User Roles (Dynamic) */}
+      <RoleCards roles={roles} />
+
+      {/* 6. Announcements (Dynamic - if any) */}
+      <Announcements announcements={announcements} />
+
+      {/* 7. Stats Mockup (If needed, can be dynamic later) */}
+
+      {/* 8. FAQ (Dynamic) */}
+      <section id="faq">
+        <FAQSection faqs={faqs} />
+      </section>
+
+      {/* 9. Final CTA */}
+      <CallToAction />
+
+      {/* 10. Footer */}
+      <footer id="contact" className="py-16 border-t border-white/10 relative z-10 bg-background/95 backdrop-blur-md">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Fitur Unggulan
-            </h2>
-            <p className="text-muted-foreground">
-              Kelola absensi dengan mudah menggunakan fitur-fitur canggih kami
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <div
-                  key={index}
-                  className="group p-8 rounded-2xl border bg-card hover:shadow-lg transition-all hover:-translate-y-1"
-                >
-                  <div className="h-14 w-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Icon className="h-7 w-7" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                  <span className="font-bold text-white text-sm">A</span>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section id="about" className="py-20 lg:py-32 bg-muted/30" suppressHydrationWarning>
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                {settings.aboutTitle}
-              </h2>
-              <p className="text-lg text-muted-foreground mb-6">
-                {settings.aboutDescription}
+                <span className="font-bold text-xl">ATTENDLY</span>
+              </div>
+              <p className="text-muted-foreground max-w-sm mb-6">
+                Sistem informasi manajemen sekolah modern yang mengutamakan efisiensi, transparansi, dan kemudahan akses bagi seluruh civitas akademika.
               </p>
+              <div className="flex gap-4 text-muted-foreground">
+                <Twitter className="h-5 w-5 hover:text-blue-400 cursor-pointer transition-colors" />
+                <Instagram className="h-5 w-5 hover:text-pink-500 cursor-pointer transition-colors" />
+                <Facebook className="h-5 w-5 hover:text-blue-600 cursor-pointer transition-colors" />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-lg mb-6">Hubungi Kami</h3>
               <ul className="space-y-4">
-                {[
-                  "Rekam absensi digital dengan cepat dan akurat",
-                  "Pantau kehadiran real-time dari dashboard",
-                  "Generate laporan otomatis bulanan",
-                  "Kelola izin dan cuti dengan mudah",
-                  "Notifikasi otomatis untuk orang tua",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary shrink-0" />
-                    <span>{item}</span>
+                {settings.contactPhone && (
+                  <li className="flex items-center gap-3 text-muted-foreground">
+                    <Phone className="h-4 w-4" />
+                    <span>{settings.contactPhone}</span>
                   </li>
-                ))}
+                )}
+                {settings.contactEmail && (
+                  <li className="flex items-center gap-3 text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                    <span>{settings.contactEmail}</span>
+                  </li>
+                )}
+                {settings.contactAddress && (
+                  <li className="flex items-start gap-3 text-muted-foreground">
+                    <MapPin className="h-4 w-4 mt-1" />
+                    <span>{settings.contactAddress}</span>
+                  </li>
+                )}
               </ul>
             </div>
-            <div className="relative">
-              <div className="aspect-video rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border">
-                <div className="text-center">
-                  <GraduationCap className="h-20 w-20 text-primary mx-auto mb-4" />
-                  <p className="text-xl font-semibold">ATTENDLY</p>
-                  <p className="text-sm text-muted-foreground">Smart Attendance System</p>
-                </div>
-              </div>
+
+            <div>
+              <h3 className="font-bold text-lg mb-6">Tautan Cepat</h3>
+              <ul className="space-y-3 text-muted-foreground">
+                <li><a href="#features" className="hover:text-foreground transition-colors">Fitur</a></li>
+                <li><a href="#how-it-works" className="hover:text-foreground transition-colors">Cara Kerja</a></li>
+                <li><a href="#faq" className="hover:text-foreground transition-colors">FAQ</a></li>
+                <li><Link href="/login" className="hover:text-foreground transition-colors">Login Admin</Link></li>
+              </ul>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-20 lg:py-32" suppressHydrationWarning>
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Hubungi Kami
-            </h2>
-            <p className="text-muted-foreground">
-              Punya pertanyaan? Jangan ragu untuk menghubungi kami
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {settings.contactPhone && (
-              <div className="text-center p-6 rounded-xl border bg-card">
-                <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
-                  <Phone className="h-5 w-5" />
-                </div>
-                <h3 className="font-semibold mb-2">Telepon</h3>
-                <p className="text-muted-foreground">{settings.contactPhone}</p>
-              </div>
-            )}
-            {settings.contactEmail && (
-              <div className="text-center p-6 rounded-xl border bg-card">
-                <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-5 w-5" />
-                </div>
-                <h3 className="font-semibold mb-2">Email</h3>
-                <p className="text-muted-foreground">{settings.contactEmail}</p>
-              </div>
-            )}
-            {settings.contactAddress && (
-              <div className="text-center p-6 rounded-xl border bg-card">
-                <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
-                  <MapPin className="h-5 w-5" />
-                </div>
-                <h3 className="font-semibold mb-2">Alamat</h3>
-                <p className="text-muted-foreground">{settings.contactAddress}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-8 border-t">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="font-bold text-primary-foreground text-sm">A</span>
-              </div>
-              <span className="font-bold">ATTENDLY</span>
-            </div>
-            <p className="text-sm text-muted-foreground">{settings.footerText}</p>
+          <div className="pt-8 border-t border-border/50 text-center text-sm text-muted-foreground">
+            <p>{settings.footerText}</p>
           </div>
         </div>
       </footer>
