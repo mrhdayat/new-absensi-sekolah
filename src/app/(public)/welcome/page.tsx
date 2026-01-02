@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AttendanceCheckForm } from "@/components/public/AttendanceCheckForm";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma";
@@ -164,6 +165,22 @@ export default async function LandingPage() {
                 Pelajari Lebih Lanjut
               </a>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Attendance Check Section */}
+      <section id="check-attendance" className="py-12 bg-white relative z-10 -mt-20 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="bg-white rounded-2xl shadow-xl border p-8 md:p-12">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Cek Kehadiran Siswa</h2>
+              <p className="text-muted-foreground">
+                Masukkan NIS dan Tanggal Lahir untuk melihat rekap kehadiran
+              </p>
+            </div>
+
+            <AttendanceCheckForm />
           </div>
         </div>
       </section>

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
@@ -134,21 +135,21 @@ function LoginForm() {
             </div>
 
             {/* Remember & Forgot */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm">
+            <div className="flex items-center justify-between relative z-10">
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
                 <input
                   type="checkbox"
-                  className="rounded border-input"
+                  className="rounded border-input cursor-pointer"
                   {...register("remember")}
                 />
                 Ingat saya
               </label>
-              <a
+              <Link
                 href="/forgot-password"
-                className="text-sm text-primary hover:underline"
+                className="text-sm text-primary hover:underline font-medium"
               >
                 Lupa password?
-              </a>
+              </Link>
             </div>
 
             {/* Submit */}

@@ -42,6 +42,7 @@ export default function EditStudentPage() {
         const classesData = await classesRes.json();
 
         if (studentData.success) {
+          console.log("Student Data Fetched:", studentData.data);
           const student = studentData.data;
           setFormData({
             nis: student.nis,
@@ -53,6 +54,8 @@ export default function EditStudentPage() {
             parentPhone: student.parentPhone || "",
             classId: student.classId || "",
           });
+        } else {
+          console.error("Student fetch failed:", studentData.error);
         }
 
         if (classesData.success) {
