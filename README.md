@@ -206,10 +206,10 @@ Struktur folder mengikuti konvensi **Next.js App Router** dengan pemisahan conce
 erDiagram
     User ||--|| Student : "has profile"
     User ||--|| Teacher : "has profile"
-    Class ||--o{ Student : "contains"
-    Teacher ||--o{ Class : "manages (homeroom)"
+    SchoolClass ||--o{ Student : "contains"
+    Teacher ||--o{ SchoolClass : "manages (homeroom)"
     AcademicYear ||--o{ Schedule : "defines"
-    Class ||--o{ Schedule : "has"
+    SchoolClass ||--o{ Schedule : "has"
     Teacher ||--o{ Schedule : "teaches"
     Subject ||--o{ Schedule : "subject of"
     Schedule ||--o{ Attendance : "records"
@@ -219,23 +219,32 @@ erDiagram
         string id PK
         string email
         string password
-        enum role "ADMIN, TEACHER, STUDENT"
+        enum role "ADMIN..."
     }
 
     Student {
         string nis UK
         string nisn
-        date birthDate
     }
 
-    Class {
+    SchoolClass {
         string name
         string grade
     }
 
     Attendance {
-        enum status "PRESENT, SICK, PERMITTED, ABSENT"
+        enum status "PRESENT..."
         timestamp date
+    }
+    
+    LandingPageSettings {
+        string heroTitle
+        string primaryColor
+    }
+    
+    LandingFeature {
+        string title
+        string icon
     }
 ```
 
@@ -600,9 +609,30 @@ A: Admin gunakan menu "Tahun Ajaran", buat baru (misal 2026/2027 Ganjil), dan se
 - [x] Fase 1: Core System & Auth
 - [x] Fase 2: Master Data CRUD
 - [x] Fase 3: Absensi Dasar
-- [ ] Fase 4: Laporan PDF & Excel (Eksportir)
-- [ ] Fase 5: Notifikasi WhatsApp
-- [ ] Fase 6: Aplikasi Mobile Native (React Native)
+- [x] Fase 4: Laporan PDF & Excel (Eksportir)
+- [x] Fase 5: Landing Page CMS (Dynamic Content)
+- [ ] Fase 6: Notifikasi WhatsApp
+- [ ] Fase 7: Aplikasi Mobile Native (React Native)
+
+---
+
+## 38. Landing Page CMS (New Feature v2.1)
+
+Sistem kini dilengkapi dengan **Content Management System (CMS)** penuh untuk Landing Page.
+Administrator dapat mengelola konten publik tanpa menyentuh kode.
+
+### Fitur CMS:
+1.  **General Settings**: Ubah Judul Hero, Deskripsi, Teks Footer, dan Warna Tema.
+2.  **Features Management**: Tambah/Edit/Hapus kartu fitur yang tampil.
+3.  **Roles Showcase**: Atur daftar peran (Siswa, Guru, Admin) beserta benefitnya.
+4.  **Announcements**: Posting pengumuman publik (Libur, Info PPDB) dengan tanggal berlaku.
+5.  **FAQ Manager**: Kelola daftar pertanyaan umum.
+6.  **How It Works**: Edit langkah-langkah penggunaan sistem.
+
+### Akses CMS:
+- **Menu**: Sidebar > "Landing CMS"
+- **Role**: Hanya `SUPER_ADMIN` dan `ADMIN`.
+- **Security**: Dilindungi oleh Server Actions dengan pengecekan Role dan Validasi Input.
 
 ---
 

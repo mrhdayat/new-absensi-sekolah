@@ -31,10 +31,17 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const settings = await prisma.schoolSettings.findFirst();
+    let settings = await prisma.schoolSettings.findFirst();
 
     if (!settings) {
-      return NextResponse.json({ error: "Settings not found" }, { status: 404 });
+      // Lazy create default settings if not exists
+      settings = await prisma.schoolSettings.create({
+        data: {
+          schoolName: "Sekolah Demo",
+          attendanceStartTime: new Date("1970-01-01T07:00:00"),
+          attendanceEndTime: new Date("1970-01-01T15:00:00"),
+        }
+      });
     }
 
     // Convert times to HH:mm format for frontend

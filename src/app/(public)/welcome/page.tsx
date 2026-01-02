@@ -11,7 +11,7 @@ import {
   Users,
   Award
 } from "lucide-react";
-import { Landing3DWrapper } from "@/components/landing/Landing3DWrapper";
+import { SpotlightBackground } from "@/components/landing/SpotlightBackground";
 import { getLandingData } from "@/lib/landing-cms";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { FeatureGrid } from "@/components/landing/FeatureGrid";
@@ -22,14 +22,12 @@ import { FAQSection } from "@/components/landing/FAQSection";
 import { CallToAction } from "@/components/landing/CallToAction";
 
 export default async function LandingPage() {
-  const { settings, features, roles, announcements, faqs, howItWorks } = await getLandingData();
+  const { settings, features, roles, announcements, faqs, howItWorks, stats } = await getLandingData();
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-blue-500/30">
-      {/* 3D Background (Fixed) */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <Landing3DWrapper />
-      </div>
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-blue-500/30 dark">
+      {/* Spotlight Background (Mouse Tracking) */}
+      <SpotlightBackground />
 
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 transition-all duration-300">
@@ -61,7 +59,7 @@ export default async function LandingPage() {
       <HeroSection settings={settings} />
 
       {/* 2. Attendance Check (Floating) */}
-      <section id="check-attendance" className="relative z-20 -mt-24 px-4 pb-20">
+      <section id="check-attendance" className="relative z-20 mt-10 px-4 pb-20">
         <div className="container mx-auto max-w-4xl">
           <div className="bg-background/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/10 p-8 md:p-12 ring-1 ring-white/20">
             <div className="text-center mb-10">
@@ -77,29 +75,77 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* 2.5 About System (Concise) */}
-      <section className="py-20 relative z-10 bg-muted/30">
-        <div className="container mx-auto px-4 text-center max-w-3xl">
-          <h2 className="text-3xl font-bold mb-6">{settings.aboutTitle}</h2>
-          <p className="text-lg text-muted-foreground leading-relaxed">
-            {settings.aboutDescription}
-          </p>
+      {/* 2.5 About System (2-Column Narrative) */}
+      <section className="py-24 relative z-10 overflow-hidden">
+        <div className="container px-4 mx-auto">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-            <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50">
-              <ShieldCheck className="h-10 w-10 text-green-500 mx-auto mb-4" />
-              <h3 className="font-bold">Aman</h3>
-              <p className="text-sm text-muted-foreground">Data terenkripsi</p>
+            {/* Left: Narrative */}
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 mb-6">
+                <span className="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                <span className="text-xs font-medium text-blue-400 uppercase tracking-widest">Philosophy</span>
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white leading-tight">
+                {settings.aboutTitle || "Beyond Traditional Attendance"}
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                {settings.aboutDescription || "Kita membangun lebih dari sekadar alat absensi. Ini adalah ekosistem digital yang menghubungkan siswa, guru, dan orang tua dalam satu frekuensi transparansi dan efisiensi."}
+              </p>
+
+              <div className="flex flex-col gap-4 border-l-2 border-white/5 pl-6">
+                <div>
+                  <h4 className="text-white font-medium mb-1">Aman & Terenkripsi</h4>
+                  <p className="text-sm text-muted-foreground">Data siswa dilindungi dengan standar keamanan industri.</p>
+                </div>
+                <div>
+                  <h4 className="text-white font-medium mb-1">Real-Time Sync</h4>
+                  <p className="text-sm text-muted-foreground">Setiap detik berharga. Data diperbarui secara instan.</p>
+                </div>
+              </div>
             </div>
-            <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50">
-              <Users className="h-10 w-10 text-blue-500 mx-auto mb-4" />
-              <h3 className="font-bold">Terintegrasi</h3>
-              <p className="text-sm text-muted-foreground">Siswa, Guru, Ortu</p>
+
+            {/* Right: Abstract Visual */}
+            <div className="relative h-[400px] w-full rounded-3xl overflow-hidden border border-white/5 bg-white/[0.02]">
+              <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/10" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative w-64 h-64">
+                  <div className="absolute inset-0 border border-blue-500/30 rounded-full animate-[spin_10s_linear_infinite]" />
+                  <div className="absolute inset-4 border border-indigo-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
+                  <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full" />
+                </div>
+              </div>
             </div>
-            <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50">
-              <Award className="h-10 w-10 text-amber-500 mx-auto mb-4" />
-              <h3 className="font-bold">Akurat</h3>
-              <p className="text-sm text-muted-foreground">Real-time update</p>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 2.6 Real-Time Stats */}
+      <section className="py-20 border-y border-white/5 relative z-10 bg-white/[0.01]">
+        <div className="container px-4 mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                {stats?.students || 0}
+              </div>
+              <div className="text-sm text-muted-foreground uppercase tracking-widest">Siswa Aktif</div>
+            </div>
+            <div>
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                {stats?.teachers || 0}
+              </div>
+              <div className="text-sm text-muted-foreground uppercase tracking-widest">Guru Pengajar</div>
+            </div>
+            <div>
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                {stats?.classes || 0}
+              </div>
+              <div className="text-sm text-muted-foreground uppercase tracking-widest">Kelas Terdaftar</div>
+            </div>
+            <div>
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">100%</div>
+              <div className="text-sm text-muted-foreground uppercase tracking-widest">Uptime Sistem</div>
             </div>
           </div>
         </div>
@@ -109,9 +155,7 @@ export default async function LandingPage() {
       <FeatureGrid features={features} />
 
       {/* 4. How It Works (Dynamic) */}
-      <section id="how-it-works">
-        <HowItWorks steps={howItWorks} />
-      </section>
+      <HowItWorks steps={howItWorks} />
 
       {/* 5. User Roles (Dynamic) */}
       <RoleCards roles={roles} />
@@ -122,9 +166,7 @@ export default async function LandingPage() {
       {/* 7. Stats Mockup (If needed, can be dynamic later) */}
 
       {/* 8. FAQ (Dynamic) */}
-      <section id="faq">
-        <FAQSection faqs={faqs} />
-      </section>
+      <FAQSection faqs={faqs} />
 
       {/* 9. Final CTA */}
       <CallToAction />

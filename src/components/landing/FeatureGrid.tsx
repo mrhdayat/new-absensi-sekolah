@@ -20,53 +20,57 @@ export function FeatureGrid({ features }: FeatureGridProps) {
   if (!features || features.length === 0) return null;
 
   return (
-    <section id="features" className="py-32 relative z-10 bg-background/50 backdrop-blur-sm">
-      <div className="container px-4">
+    <section id="features" className="py-32 relative z-10">
+      <div className="container px-4 mx-auto">
+        {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400"
+            className="text-3xl md:text-4xl font-semibold mb-6 tracking-tight text-white"
           >
-            Fitur Unggulan
+            Kapabilitas Sistem
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-lg text-muted-foreground"
+            transition={{ delay: 0.1 }}
+            className="text-lg text-muted-foreground/80 font-light"
           >
-            Teknologi absensi modern yang dirancang untuk efisiensi dan akurasi tinggi sekolah Anda.
+            Teknologi yang dirancang untuk kecepatan, akurasi, dan transparansi data sekolah.
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => {
             const Icon = getIcon(feature.icon);
             return (
               <motion.div
                 key={feature.id}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -10 }}
-                className="group relative p-1 rounded-3xl bg-gradient-to-b from-border to-transparent hover:from-blue-500/50 transition-all duration-300"
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                className="group relative p-6 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-blue-500/30 transition-all duration-500 backdrop-blur-sm"
               >
-                <div className="relative h-full bg-card/50 backdrop-blur-xl p-6 md:p-8 rounded-[22px] border border-white/5 shadow-xl overflow-hidden flex flex-col items-start text-left">
-                  <div className="absolute top-0 right-0 -mr-16 -mt-16 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all duration-500" />
+                {/* Visual Glow on Hover */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-                  <div className="h-12 w-12 md:h-14 md:w-14 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                    <Icon className="h-6 w-6 md:h-7 md:w-7" />
-                  </div>
-
-                  <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
-                    {feature.description}
-                  </p>
+                {/* Icon */}
+                <div className="h-12 w-12 rounded-lg bg-white/5 flex items-center justify-center mb-6 text-blue-400 group-hover:text-blue-300 group-hover:bg-blue-500/20 transition-all duration-300 group-hover:rotate-6">
+                  <Icon className="h-6 w-6" />
                 </div>
+
+                {/* Content */}
+                <h3 className="text-xl font-medium mb-3 text-white group-hover:translate-x-1 transition-transform duration-300">
+                  {feature.title}
+                </h3>
+                <p className="text-muted-foreground text-sm leading-relaxed group-hover:text-muted-foreground/80 transition-colors">
+                  {feature.description}
+                </p>
               </motion.div>
             );
           })}

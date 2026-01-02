@@ -1,55 +1,68 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
 
-interface FAQProps {
+interface FAQSectionProps {
   faqs: any[];
 }
 
-export function FAQSection({ faqs }: FAQProps) {
-  const [openId, setOpenId] = useState<string | null>(null);
+export function FAQSection({ faqs }: FAQSectionProps) {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   if (!faqs || faqs.length === 0) return null;
 
   return (
-    <section className="py-24 relative z-10 bg-muted/20">
-      <div className="container px-4 max-w-4xl mx-auto">
+    <section id="faq" className="py-32 relative z-10">
+      <div className="container px-4 mx-auto max-w-3xl">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Pertanyaan Umum</h2>
-          <p className="text-muted-foreground">Hal-hal yang sering ditanyakan mengenai sistem ini</p>
+          <h2 className="text-3xl font-semibold text-white mb-4">Pertanyaan Umum</h2>
+          <p className="text-muted-foreground">Jawaban untuk hal yang sering ditanyakan tentang ATTENDLY.</p>
         </div>
 
         <div className="space-y-4">
-          {faqs.map((faq) => (
-            <div key={faq.id} className="bg-card border border-border/50 rounded-2xl overflow-hidden shadow-sm">
+          {faqs.map((faq, index) => (
+            <motion.div
+              key={faq.id}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.05 }}
+              className="border border-white/5 rounded-xl bg-[#0F1218] overflow-hidden"
+            >
               <button
-                onClick={() => setOpenId(openId === faq.id ? null : faq.id)}
-                className="w-full flex items-center justify-between p-6 text-left hover:bg-muted/50 transition-colors"
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                className="w-full flex items-center justify-between p-6 text-left hover:bg-white/[0.02] transition-colors"
+                aria-expanded={openIndex === index}
               >
-                <span className="font-semibold text-lg">{faq.question}</span>
-                {openId === faq.id ? (
-                  <Minus className="h-5 w-5 text-blue-500 shrink-0" />
-                ) : (
-                  <Plus className="h-5 w-5 text-muted-foreground shrink-0" />
-                )}
+                <span className={`font-medium ${openIndex === index ? 'text-blue-400' : 'text-white'}`}>
+                  {faq.question}
+                </span>
+                <span className="flex-shrink-0 ml-4">
+                  {openIndex === index ? (
+                    <Minus className="h-5 w-5 text-blue-400" />
+                  ) : (
+                    <Plus className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </span>
               </button>
+
               <AnimatePresence>
-                {openId === faq.id && (
+                {openIndex === index && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
                   >
-                    <div className="p-6 pt-0 text-muted-foreground leading-relaxed">
+                    <div className="px-6 pb-6 text-muted-foreground leading-relaxed text-sm border-t border-white/5 pt-4">
                       {faq.answer}
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

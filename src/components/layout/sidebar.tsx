@@ -7,6 +7,7 @@ import { signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
+  LayoutTemplate,
   Users,
   GraduationCap,
   School,
@@ -105,6 +106,12 @@ const menuItems: MenuItem[] = [
     title: "Pengaturan",
     href: "/admin/settings",
     icon: Settings,
+    roles: ["SUPER_ADMIN", "ADMIN"],
+  },
+  {
+    title: "Landing CMS",
+    href: "/admin/cms",
+    icon: LayoutTemplate,
     roles: ["SUPER_ADMIN", "ADMIN"],
   },
   // Homeroom Teacher
